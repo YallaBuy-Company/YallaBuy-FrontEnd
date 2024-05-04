@@ -50,7 +50,9 @@ export const Datetoggle = () => {
 
   return (
     <div>
-      <Button onClick={handleOpen}>Open Date Range Picker</Button>
+      <Button onClick={handleOpen} variant="outlined">
+        Open Date Range Picker
+      </Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Select Date Range</DialogTitle>
         <DialogContent>
