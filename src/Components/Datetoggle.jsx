@@ -15,6 +15,10 @@ export const Datetoggle = () => {
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
 
+  const today = new Date(); // Get today's date
+  today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 for accurate comparison
+
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -24,7 +28,21 @@ export const Datetoggle = () => {
   };
 
   const handleApply = () => {
-    // Handle the selected start and end dates here
+    if (!startDate) {
+      alert('Please select a start date.');
+      return;
+    }
+
+    if (startDate < today) {
+      alert('Start date cannot be earlier than today.');
+      return;
+    }
+
+    if (endDate && endDate < startDate) {
+      alert('End date cannot be earlier than the start date.');
+      return;
+    }
+
     console.log('Start Date:', startDate);
     console.log('End Date:', endDate);
     handleClose();
@@ -43,6 +61,7 @@ export const Datetoggle = () => {
                 id="start-date"
                 value={startDate}
                 onChange={(date) => setStartDate(date)}
+                format='DD/MM/YYYY'
               />
             </LocalizationProvider>
           </Box>
@@ -53,6 +72,7 @@ export const Datetoggle = () => {
                 id="end-date"
                 value={endDate}
                 onChange={(date) => setEndDate(date)}
+                format='DD/MM/YYYY'
               />
             </LocalizationProvider>
           </Box>
