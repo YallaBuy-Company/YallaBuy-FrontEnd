@@ -1,5 +1,10 @@
-import { useState } from 'react'
+//import { useState } from 'react'
 import './App.css'
+import { Generalsearch } from './Components/Generalsearch'
+// import {Datetoggle} from "./Components/Datetoggle"
+// import { Locationinput } from './Components/Locationinput'
+// import { Freeinput } from './Components/Freeinput'
+
 import { Navbar } from './components/Navbar'
 import { Itemscontainer } from './components/Itemscontainer'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -24,6 +29,7 @@ function App() {
   const src ="src/images/navimg.jpg";
   return (
     <>
+      <Generalsearch/>
      <ThemeProvider theme={theme}>
 
      {/*<Navbar />*/}
