@@ -1,19 +1,15 @@
-//import { useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 import { Generalsearch } from './Components/Generalsearch'
-// import {Datetoggle} from "./Components/Datetoggle"
-// import { Locationinput } from './Components/Locationinput'
-// import { Freeinput } from './Components/Freeinput'
-
-import { Navbar } from './components/Navbar'
-import { Itemscontainer } from './components/Itemscontainer'
+// import { Navbar } from './Components/Navbar'
+import { Itemscontainer } from './Components/Itemscontainer'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blue } from '@mui/material/colors';
-import { Navimg } from './components/Navimg';
-import { Cardgrid } from './components/Cardgrid';
+import { Navimg } from './Components/Navimg';
+import { Cardgrid } from './Components/Cardgrid';
 import Box from '@mui/material/Box';
 import { Container } from '@mui/system';
-import LoginSignupPopup from './components/LoginSignupPopup';
+import LoginSignupPopup from './Components/LoginSignupPopup';
 
 const theme = createTheme({
     palette: {
