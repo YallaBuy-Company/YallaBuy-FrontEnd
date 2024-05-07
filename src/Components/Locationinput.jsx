@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -11,69 +11,39 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import parse from 'autosuggest-highlight/parse';
 import { debounce } from '@mui/material/utils';
-
-
-// Alon has the key!!!
-const GOOGLE_MAPS_API_KEY = 'AlonIsAfraidToPayToMuchToGoogle';
-
-function loadScript(src, position, id) {
-    if (!position) {
-        return;
-    }
-
-    const script = document.createElement('script');
-    script.setAttribute('async', '');
-    script.setAttribute('id', id);
-    script.src = src;
-    position.appendChild(script);
-}
-
-const autocompleteService = { current: null };
+import { loadGoogleMapsScript } from '../apis/api';
+import { GOOGLE_MAPS_API_KEY } from '../apis/api';
 
 export const Locationinput = () => {
-    const [open, setOpen] = React.useState(false);
-    const [value, setValue] = React.useState(null);
-    const [inputValue, setInputValue] = React.useState('');
-    const [options, setOptions] = React.useState([]);
-    const loaded = React.useRef(false);
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState(null);
+    const [inputValue, setInputValue] = useState('');
+    const [options, setOptions] = useState([]);
 
-    if (typeof window !== 'undefined' && !loaded.current) {
-        if (!document.querySelector('#google-maps')) {
-            loadScript(
-                `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`,
-                document.querySelector('head'),
-                'google-maps',
-            );
+    useEffect(() => {
+        loadGoogleMapsScript(GOOGLE_MAPS_API_KEY);
+    }, []);
+
+    const autocompleteService = useMemo(() => {
+        if (window.google) {
+            return new window.google.maps.places.AutocompleteService();
         }
+        return null;
+    }, []);
 
-        loaded.current = true;
-    }
-
-    const fetch = React.useMemo(
-        () =>
-            debounce((request, callback) => {
-                autocompleteService.current.getPlacePredictions(request, callback);
-            }, 400),
-        [],
-    );
-
-    React.useEffect(() => {
+    useEffect(() => {
         let active = true;
 
-        if (!autocompleteService.current && window.google) {
-            autocompleteService.current =
-                new window.google.maps.places.AutocompleteService();
-        }
-        if (!autocompleteService.current) {
-            return undefined;
-        }
-
-        if (inputValue === '') {
+        if (!autocompleteService || inputValue === '') {
             setOptions(value ? [value] : []);
             return undefined;
         }
 
-        fetch({ input: inputValue }, (results) => {
+        const fetchPredictions = debounce((request, callback) => {
+            autocompleteService.getPlacePredictions(request, callback);
+        }, 400);
+
+        fetchPredictions({ input: inputValue }, (results) => {
             if (active) {
                 let newOptions = [];
 
@@ -88,11 +58,7 @@ export const Locationinput = () => {
                 setOptions(newOptions);
             }
         });
-
-        return () => {
-            active = false;
-        };
-    }, [value, inputValue, fetch]);
+    }, [value, inputValue, autocompleteService]);
 
     const handleOpen = () => {
         setOpen(true);
@@ -134,7 +100,7 @@ export const Locationinput = () => {
                             setInputValue(newInputValue);
                         }}
                         renderInput={(params) => (
-                            <TextField {...params} label="Add a location" fullWidth sx={{ paddingBottom: '24px' }}  />
+                            <TextField {...params} label="Add a location" fullWidth sx={{ paddingBottom: '24px' }} />
                         )}
                         renderOption={(props, option) => {
                             const matches =
@@ -180,3 +146,5 @@ export const Locationinput = () => {
         </>
     );
 };
+
+
