@@ -11,10 +11,10 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import { Generalsearch } from './Generalsearch'
-import LoginSignupPopup from './LoginSignupPopup';
+import { Generalsearch } from '../Generalsearch'
+import LoginSignupPopup from '../LoginSignupPopup';
 import React, { useContext } from 'react';
-import { UserContext } from './UserContext';
+import { UserContext } from '../UserContext';
 import { Link } from 'react-router-dom';
 
 const pages = ['Products', 'Pricing', 'Blog'];

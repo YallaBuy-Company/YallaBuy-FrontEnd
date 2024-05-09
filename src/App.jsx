@@ -1,10 +1,10 @@
 import React, { createContext, useState, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css'
-import { Navbar } from './components/Navbar'
+import { Navbar } from './components/NavbarComponent/Navbar.jsx';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blue } from '@mui/material/colors';
-import { Navimg } from './components/Navimg';
+import { Navimg } from './components/NavimgComponent/Navimg';
 import Box from '@mui/material/Box';
 import { Container } from '@mui/system';
 import {HomePage} from './components/HomePageComponent/HomePage'
