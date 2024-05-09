@@ -22,7 +22,7 @@ function LoginSignupPopup() {
   return (
     <>
       <Button variant="contained" onClick={handleOpen}>
-        Login/Signup
+        Login
       </Button>
       <Dialog open={open} onClose={handleClose}>
 

@@ -1,7 +1,6 @@
 import React from "react";
 
-export const ManagerPage = ()=> {
-
+export const TicketPage = ()=> {
     return (
         <>
          
