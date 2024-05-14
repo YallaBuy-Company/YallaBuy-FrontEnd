@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import './App.css'
-import { Generalsearch } from './Components/Generalsearch'
-// import { Navbar } from './Components/Navbar'
-import { Itemscontainer } from './Components/Itemscontainer'
+import { Generalsearch } from './components/Generalsearch'
+// import { Navbar } from './components/Navbar'
+import { Itemscontainer } from './components/Itemscontainer'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { blue } from '@mui/material/colors';
-import { Navimg } from './Components/Navimg';
-import { Cardgrid } from './Components/Cardgrid';
+import { Navimg } from './components/Navimg';
+import { Cardgrid } from './components/Cardgrid';
 import Box from '@mui/material/Box';
 import { Container } from '@mui/system';
-import LoginSignupPopup from './Components/LoginSignupPopup';
+import LoginSignupPopup from './components/LoginSignupPopup';
 
 const theme = createTheme({
     palette: {
