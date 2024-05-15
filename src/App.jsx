@@ -14,6 +14,7 @@ import {ManagerPage} from './components/ManagerPageComponent/ManagerPage'
 import { UserProvider } from './components/UserContext';
 import { UserContext } from './components/UserContext';
 import { TicketPage } from './components/TicketPageComponent/TicketPage';
+import {TicketNavImg} from './components/TicketNavImgComponent/TicketNavImg.jsx';
 
 const theme = createTheme({
     palette: {
@@ -38,10 +39,10 @@ function App() {
     <Router>
     <ThemeProvider theme={theme}>
      <Navbar />
-
             <Routes>
               <Route path="/search" element={<Navimg src={src}/>} /> 
               <Route path="/" element={<Navimg src={src}/>} /> 
+              <Route path="/ticket" element={<TicketNavImg src ={src}/>} />
             </Routes>
 
      <Box sx={{ display: 'flex',flexDirection: 'column', justifyContent: 'center',marginTop:'20px'}}>
