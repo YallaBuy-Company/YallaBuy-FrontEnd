@@ -28,7 +28,7 @@ export const Navimg = ({ src, title }) => {
         <Chip label="Clickable" variant="outlined" onClick={handleClick} sx={{ color: 'white', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.5) !important' } }}/>
         <Chip label="Clickable" variant="outlined" onClick={handleClick} sx={{ color: 'white', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.5) !important' } }}/>
       </Stack>
-      </div> {/* Add title before image */}
+      </div> 
     </div>
   );
 };
