@@ -1,44 +1,50 @@
 .footer {
-    background-color: #333;
-    color: #fff;
-    padding: 20px 0;
-    width: 100%;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Each section in a separate column */
-    gap: 20px;
-  }
-  
-  .section {
-    padding: 10px;
-  }
-  
+  position:relative;
+  bottom: 0;
+  width: 100%;
+  background-color: #f8f9fa; /* Set your desired background color */
+  padding: 20px; /* Adjust padding according to your design */
+  display: flex;
+  justify-content: space-between;
+  height: 100px;
+}
 
-  .container > div:not(:last-child) {
-    border-right: 1px solid #fff;
-  }
-  
-  .social-icons {
-    text-align: center; 
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between; 
-    align-items: center; 
-    font-size: 24px; 
-  }
-  
-  .social-icons a {
-    margin-top: 10px; 
-  }
-  
-  .social-icons a:first-child {
-    margin-top: 0; 
-  }
-  
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Each section in a separate column */
+  gap: 20px;
+}
+
+.section {
+  margin-right: 20px; /* Adjust spacing between sections */
+}
+
+.section:last-child {
+  margin-right: 0; /* Remove margin from the last section */
+}
+
+.social-icons {
+  display: flex;
+  align-items: center;
+}
+
+.social-icons a {
+  margin-right: 10px; /* Adjust spacing between social icons */
+}
+
+/* Optional: Add hover effects or styles to social icons */
+.social-icons a:hover {
+  opacity: 0.7;
+}
+
+/* Optional: Style the list items within sections */
+.section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.section ul li {
+  margin-bottom: 5px; /* Adjust spacing between list items */
+}

@@ -5,6 +5,7 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import './Navimg.css';
 
+
 export const Navimg = ({ src, title }) => {
   
 
@@ -13,7 +14,9 @@ export const Navimg = ({ src, title }) => {
   };
 
   return (
+    
     <div className="container">
+      
       <img src={src} alt="Image" className="image" />
       <div className="titleBox">
       <Typography variant="h2" p={0} m={0} gutterBottom>
