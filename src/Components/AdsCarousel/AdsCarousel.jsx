@@ -17,6 +17,24 @@ export function AdsCarousel({ src }) {
       description: "Discover our latest product!",
       image: src,
     }
+    ,
+    {
+      name: "Ad 3",
+      description: "Discover our latest product!",
+      image: src,
+    }
+    ,
+    {
+      name: "Ad 4",
+      description: "Discover our latest product!",
+      image: src,
+    }
+    ,
+    {
+      name: "Ad 5",
+      description: "Discover our latest product!",
+      image: src,
+    }
   ];
 
   return (

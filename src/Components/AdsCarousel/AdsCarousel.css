@@ -1,30 +1,58 @@
 .container {
-    position: relative;
-    width: 100vw;
-    height: 70vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 0;
-  }
-  
-  .image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  position: relative;
+  width: 100vw;
+  height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 0;
+}
 
-  
-  
-  .titleBox {
-    width: 80%;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 1rem;
-    z-index: 1;
-    text-align: start;
-  }
-  
+.image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7); /* Darken the image for better text contrast */
+}
+
+.titleBox {
+  position:relative;
+  width: 80%;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 1.5rem;
+  z-index: 1;
+  text-align: start;
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+  color: #fff; /* Text color */
+}
+
+.titleBox h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.titleBox p {
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+}
+
+.CheckButton {
+  background-color: #ff4081; /* Button color */
+  color: #fff;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  text-transform: none; /* Disable uppercase transformation */
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.CheckButton:hover {
+  background-color: #e73370; /* Darker shade on hover */
+}
