@@ -49,8 +49,9 @@ function App() {
 
             <Routes>
               <Route path="/" element={<HomePage />} /> 
+              <Route path="/Logout" element={<HomePage />} /> 
               <Route path="/search" element={<SearchPage />} /> 
-              <Route path="/settings" element={<PersonalSettingsPage />} /> 
+              <Route path="/Account" element={<PersonalSettingsPage />} /> 
               <Route path="/manager" element={<ManagerPage />} />
               <Route path="/ticket" element={<TicketPage />} />
             </Routes>

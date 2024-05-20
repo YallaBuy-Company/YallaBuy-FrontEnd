@@ -16,22 +16,27 @@ import LoginSignupPopup from '../LoginSignupPopup';
 import React, { useContext } from 'react';
 import { UserContext } from '../UserContext';
 import { Link } from 'react-router-dom';
+import SvgIcon from '@mui/material/SvgIcon';
+import { Freeinput } from '../Freeinput';
+import { Datetoggle } from '../Datetoggle';
+import { Locationinput } from '../Locationinput';
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const pages = ['Teams', 'Date', 'Location'];
+const settings = ['Account', 'Logout'];
+
+
 
 export const Navbar = () => {
 
   const { userMode } = useContext(UserContext);
-
-
-
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
-  const handleOpenNavMenu = (event) => {
+  
+  const handleOpenMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -45,43 +50,25 @@ export const Navbar = () => {
   };
 
   return (
-    <AppBar position="absolute" sx={{backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
+    <AppBar position="sticky" enableColorOnDark color='default'>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-          
           <Link to="/">
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            LOGO
-          </Typography>
+        <img src='./src\assets\smallLogo.svg'></img>
           </Link>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
+          <Box sx={{paddingRight:"50%" ,justifyContent: "center", flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            <Box sx={{flexGrow:0 }}>
+            <Button
+                key={"Teams"}
+                onClick={handleOpenMenu}
+                sx={{ my: 2, color: 'black', display: 'block' }}
+              >
+                Search
+              </Button>
+              <Menu
+              id="menu-search"
+              sx={{display:"flex"}}
               anchorEl={anchorElNav}
               anchorOrigin={{
                 vertical: 'bottom',
@@ -94,57 +81,26 @@ export const Navbar = () => {
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: 'block', md: 'none' },
-              }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
+              <MenuItem key={"Teams-item"}>
+              <Freeinput/>
+              </MenuItem>
+              <MenuItem key={"Date-items"}>
+              <Datetoggle></Datetoggle>
+              </MenuItem>
+              <MenuItem key={"Location item"}>
+              <Locationinput></Locationinput>
+              </MenuItem>
             </Menu>
-          </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-          <Link to="/">
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            LOGO
-          </Typography>
-          </Link>
-          <Generalsearch/>
+            </Box>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
-            ))}
           </Box>
           
-          {userMode === 'guest' && <LoginSignupPopup/>} 
-
+          {userMode === 'guest' ? <LoginSignupPopup/> :
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
+            <Tooltip title="Profile">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar />
               </IconButton>
             </Tooltip>
             <Menu
@@ -165,11 +121,16 @@ export const Navbar = () => {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+                    <Link to={'/'+setting}>
+                  <Typography textAlign="center">
+                    {setting}
+                    </Typography>
+                    </Link>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
+}
         </Toolbar>
       </Container>
     </AppBar>
