@@ -44,7 +44,7 @@ const CustomListbox = React.forwardRef(function CustomListbox(props, ref) {
     );
   });
   
-  export const Freeinput = () => {
+  export const Freeinput = ({query , setQuery}) => {
     const [inputValue, setInputValue] = React.useState('');
     const [selectedOption, setSelectedOption] = React.useState(null);
   
@@ -53,6 +53,7 @@ const CustomListbox = React.forwardRef(function CustomListbox(props, ref) {
     };
   
     const handleOptionChange = (event, newOption) => {
+      setQuery({...query , text : newOption.value})
       setSelectedOption(newOption);
     };
   

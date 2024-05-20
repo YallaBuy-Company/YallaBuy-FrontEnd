@@ -14,7 +14,7 @@ import { debounce } from '@mui/material/utils';
 import { loadGoogleMapsScript } from '../apis/api';
 import { GOOGLE_MAPS_API_KEY } from '../apis/api';
 
-export const Locationinput = () => {
+export const Locationinput = ({query,setQuery}) => {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState(null);
     const [inputValue, setInputValue] = useState('');
@@ -98,6 +98,7 @@ export const Locationinput = () => {
                         }}
                         onInputChange={(event, newInputValue) => {
                             setInputValue(newInputValue);
+                            setQuery({...query, location : newInputValue})
                         }}
                         renderInput={(params) => (
                             <TextField {...params} label="Add a location" fullWidth sx={{ paddingBottom: '24px' }} />

@@ -4,30 +4,31 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
-import { Generalsearch } from '../Generalsearch'
 import LoginSignupPopup from '../LoginSignupPopup';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { UserContext } from '../UserContext';
 import { Link } from 'react-router-dom';
-import SvgIcon from '@mui/material/SvgIcon';
 import { Freeinput } from '../Freeinput';
 import { Datetoggle } from '../Datetoggle';
 import { Locationinput } from '../Locationinput';
 
-const pages = ['Teams', 'Date', 'Location'];
+
 const settings = ['Account', 'Logout'];
 
 
 
 export const Navbar = () => {
-
+  const [queryState , setQuery] = useState({
+    text: null,
+    startDate: null,
+    endDate: null,
+    location : null
+  });
   const { userMode } = useContext(UserContext);
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -49,7 +50,7 @@ export const Navbar = () => {
     setAnchorElUser(null);
   };
   const handleSearch = ()=>{
-    //take data from inputs and send where needed
+    console.log(queryState)
   }
   return (
     <AppBar position="sticky" enableColorOnDark color='default'>
@@ -88,22 +89,26 @@ export const Navbar = () => {
               }}
             >
               <MenuItem key={"Teams-item"}>
-              <Freeinput/>
+              <Freeinput query={queryState} setQuery={setQuery}/>
               </MenuItem>
               <MenuItem key={"Date-items"}>
-              <Datetoggle></Datetoggle>
+              <Datetoggle query={queryState} setQuery={setQuery} />
               </MenuItem>
               <MenuItem key={"Location-item"}>
-              <Locationinput></Locationinput>
+              <Locationinput query={queryState} setQuery={setQuery}></Locationinput>
               </MenuItem>
               <MenuItem key={"Send-query"}>
-              <Button
+              {/* <Button
               key={"Search"}
               onClick={handleSearch}
               sx={{ my: 2, color: 'black', display: 'block' ,border:"solid"}}
               >
                 Search
-              </Button>
+              </Button> */}
+              <Link  to={{
+                pathname: "/search",
+                search: "?text="+queryState.text+"&startDate="+queryState.startDate+"&endDate="+queryState.endDate+"%location="+queryState.location
+                }} >Search</Link>
               </MenuItem>
             </Menu>
             </Box>

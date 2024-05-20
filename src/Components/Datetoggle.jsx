@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import InputLabel from '@mui/material/InputLabel';
 import Box from '@mui/material/Box';
 
-export const Datetoggle = () => {
+export const Datetoggle = ({query,setQuery}) => {
   const [open, setOpen] = React.useState(false);
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
@@ -63,7 +63,9 @@ export const Datetoggle = () => {
                 }}
                 disablePast
                 value={startDate}
-                onChange={(date) => setStartDate(date)}
+                onChange={(date) =>{ setStartDate(date)
+                  setQuery({...query, startDate:date.format('DD/MM/YYYY')})
+                }}
                 format='DD/MM/YYYY'
               />
             </LocalizationProvider>
@@ -76,7 +78,9 @@ export const Datetoggle = () => {
                 disablePast
                 minDate={startDate}
                 value={endDate}
-                onChange={(date) => setEndDate(date)}
+                onChange={(date) =>{ setEndDate(date)
+                  setQuery({...query, endDate:date.format('DD/MM/YYYY')})
+                }}
                 format='DD/MM/YYYY'
               />
             </LocalizationProvider>
