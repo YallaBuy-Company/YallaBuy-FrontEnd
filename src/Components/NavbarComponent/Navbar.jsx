@@ -48,7 +48,9 @@ export const Navbar = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-
+  const handleSearch = ()=>{
+    //take data from inputs and send where needed
+  }
   return (
     <AppBar position="sticky" enableColorOnDark color='default'>
       <Container maxWidth="xl">
@@ -60,11 +62,11 @@ export const Navbar = () => {
           <Box sx={{paddingRight:"50%" ,justifyContent: "center", flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             <Box sx={{flexGrow:0 }}>
             <Button
-                key={"Search"}
+                key={"openMenu"}
                 onClick={handleOpenMenu}
                 sx={{ my: 2, color: 'black', display: 'block' }}
               >
-                Search
+                Find Venues
               </Button>
               <Menu
               key={"menu"}
@@ -91,8 +93,17 @@ export const Navbar = () => {
               <MenuItem key={"Date-items"}>
               <Datetoggle></Datetoggle>
               </MenuItem>
-              <MenuItem key={"Location item"}>
+              <MenuItem key={"Location-item"}>
               <Locationinput></Locationinput>
+              </MenuItem>
+              <MenuItem key={"Send-query"}>
+              <Button
+              key={"Search"}
+              onClick={handleSearch}
+              sx={{ my: 2, color: 'black', display: 'block' ,border:"solid"}}
+              >
+                Search
+              </Button>
               </MenuItem>
             </Menu>
             </Box>
