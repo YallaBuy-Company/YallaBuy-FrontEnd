@@ -1,44 +1,78 @@
 .footer {
-    background-color: #333;
-    color: #fff;
-    padding: 20px 0;
-    width: 100%;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Each section in a separate column */
-    gap: 20px;
-  }
-  
-  .section {
-    padding: 10px;
-  }
-  
+  position:relative;
+  bottom: 0;
+  width: 100%;
+  height: auto;  /* Set your desired background color */
+  padding: 20px; /* Adjust padding according to your design */
+  display: flex;
+  background-color: #b7c1cabe;
+  justify-content: space-between;
+  width: auto;
+}
 
-  .container > div:not(:last-child) {
-    border-right: 1px solid #fff;
-  }
-  
-  .social-icons {
-    text-align: center; 
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between; 
-    align-items: center; 
-    font-size: 24px; 
-  }
-  
-  .social-icons a {
-    margin-top: 10px; 
-  }
-  
-  .social-icons a:first-child {
-    margin-top: 0; 
-  }
-  
+.container {
+  position:relative;
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Each section in a separate column */
+  gap: 20px;
+}
+
+.section {
+  position: relative;
+  margin-right: 20px; /* Adjust spacing between sections */
+  padding-left: 20px; /* Add padding to make space for the border */
+  /* Add left border to create a line */
+}
+
+.section::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: black; /* Black line */
+}
+
+.section:first-child::before {
+  display: none; /* Remove border from the first section */
+}
+
+.section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.section ul li {
+  margin-bottom: 5px; /* Adjust spacing between list items */
+  padding-bottom: 5px; /* Add padding to make space for the border */
+  border-bottom: 1px solid #ccc; /* Add bottom border to create a line */
+}
+
+.section ul li:last-child {
+  border-bottom: none; /* Remove border from the last list item */
+}
+
+.social-icons {
+  display: flex;
+  align-items: center;
+}
+
+.social-icons a {
+  margin-right: 10px; /* Adjust spacing between social icons */
+  padding-right: 10px; /* Add padding to make space for the border */
+  border-right: 1px solid #ccc; /* Add right border to create a line */
+}
+
+.social-icons a:last-child {
+  margin-right: 0; /* Remove margin from the last icon */
+  border-right: none; /* Remove border from the last icon */
+}
+
+/* Optional: Add hover effects or styles to social icons */
+.social-icons a:hover {
+  opacity: 0.7;
+}
