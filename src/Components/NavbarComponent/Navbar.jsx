@@ -60,15 +60,15 @@ export const Navbar = () => {
           <Box sx={{paddingRight:"50%" ,justifyContent: "center", flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             <Box sx={{flexGrow:0 }}>
             <Button
-                key={"Teams"}
+                key={"Search"}
                 onClick={handleOpenMenu}
                 sx={{ my: 2, color: 'black', display: 'block' }}
               >
                 Search
               </Button>
               <Menu
+              key={"menu"}
               id="menu-search"
-              sx={{display:"flex"}}
               anchorEl={anchorElNav}
               anchorOrigin={{
                 vertical: 'bottom',
@@ -81,6 +81,9 @@ export const Navbar = () => {
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
+              MenuListProps={{
+                sx:{display:"flex"}
+              }}
             >
               <MenuItem key={"Teams-item"}>
               <Freeinput/>
