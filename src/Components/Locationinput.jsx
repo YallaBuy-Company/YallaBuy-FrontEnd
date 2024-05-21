@@ -12,24 +12,31 @@ import Typography from '@mui/material/Typography';
 import parse from 'autosuggest-highlight/parse';
 import { debounce } from '@mui/material/utils';
 import { loadGoogleMapsScript } from '../apis/api';
-import { GOOGLE_MAPS_API_KEY } from '../apis/api';
+
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY;
+
 
 export const Locationinput = () => {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState(null);
     const [inputValue, setInputValue] = useState('');
     const [options, setOptions] = useState([]);
+    const [scriptLoaded, setScriptLoaded] = useState(false);
 
     useEffect(() => {
-        loadGoogleMapsScript(GOOGLE_MAPS_API_KEY);
+        loadGoogleMapsScript(GOOGLE_MAPS_API_KEY, () => {
+            setScriptLoaded(true);
+        });
     }, []);
 
     const autocompleteService = useMemo(() => {
-        if (window.google) {
+        if (scriptLoaded && window.google) {
+            console.log('Google Maps API is available.');
             return new window.google.maps.places.AutocompleteService();
         }
+        console.log('Google Maps API is not available yet.');
         return null;
-    }, []);
+    }, [scriptLoaded]);
 
     useEffect(() => {
         let active = true;
@@ -58,27 +65,27 @@ export const Locationinput = () => {
                 setOptions(newOptions);
             }
         });
+
+        return () => {
+            active = false;
+        };
     }, [value, inputValue, autocompleteService]);
 
-    const handleOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
+    const handleDialogToggle = () => {
+        setOpen(!open);
     };
 
     const handleApply = () => {
         setValue(inputValue);
-        setOpen(false);
+        handleDialogToggle();
     };
 
     return (
         <>
-            <Button onClick={handleOpen} startIcon={<LocationOnIcon />} variant="outlined">
+            <Button onClick={handleDialogToggle} startIcon={<LocationOnIcon />} variant="outlined">
                 Select Location
             </Button>
-            <Dialog open={open} onClose={handleClose} PaperProps={{ sx: { minWidth: '30vw' } }}>
+            <Dialog open={open} onClose={handleDialogToggle} PaperProps={{ sx: { minWidth: '30vw' } }}>
                 <DialogTitle>Select Location</DialogTitle>
                 <DialogContent>
                     <Autocomplete
@@ -139,12 +146,10 @@ export const Locationinput = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button onClick={handleDialogToggle}>Cancel</Button>
                     <Button onClick={handleApply}>Apply</Button>
                 </DialogActions>
             </Dialog>
         </>
     );
 };
-
-
