@@ -11,9 +11,9 @@ const CustomListbox = React.forwardRef(function CustomListbox(props, ref) {
             {React.Children.toArray(children).slice(0, 3)}
         </List>
     );
-});
-
-export const Freeinput = () => {
+  });
+  
+  export const Freeinput = ({query , setQuery}) => {
     const [inputValue, setInputValue] = React.useState('');
     const [selectedOption, setSelectedOption] = React.useState(null);
     const [options, setOptions] = React.useState([]);
@@ -48,7 +48,8 @@ export const Freeinput = () => {
     };
 
     const handleOptionChange = (event, newOption) => {
-        setSelectedOption(newOption);
+      setQuery({...query , text : newOption.value})
+      setSelectedOption(newOption);
     };
 
     return (

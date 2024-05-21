@@ -4,34 +4,40 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
-import { Generalsearch } from '../Generalsearch'
 import LoginSignupPopup from '../LoginSignupPopup';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { UserContext } from '../UserContext';
 import { Link } from 'react-router-dom';
+import { Freeinput } from '../Freeinput';
+import { Datetoggle } from '../Datetoggle';
+import { Locationinput } from '../Locationinput';
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+
+const settings = ['Account', 'Logout'];
+
+
 
 export const Navbar = () => {
-
+  const [queryState , setQuery] = useState({
+    text: null,
+    startDate: null,
+    endDate: null,
+    location : null
+  });
   const { userMode } = useContext(UserContext);
-
-
-
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
-  const handleOpenNavMenu = (event) => {
+  
+  const handleOpenMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -43,45 +49,29 @@ export const Navbar = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-
+  const handleSearch = ()=>{
+    console.log(queryState)
+  }
   return (
-    <AppBar position="absolute" sx={{backgroundColor: 'rgba(0, 0, 0, 0.8)'}}>
+    <AppBar position="sticky" enableColorOnDark color='default'>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-          
           <Link to="/">
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            LOGO
-          </Typography>
+        <img src='./src\assets\smallLogo.svg'></img>
           </Link>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
+          <Box sx={{paddingRight:"50%" ,justifyContent: "center", flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            <Box sx={{flexGrow:0 }}>
+            <Button
+                key={"openMenu"}
+                onClick={handleOpenMenu}
+                sx={{ my: 2, color: 'black', display: 'block' }}
+              >
+                Find Venues
+              </Button>
+              <Menu
+              key={"menu"}
+              id="menu-search"
               anchorEl={anchorElNav}
               anchorOrigin={{
                 vertical: 'bottom',
@@ -94,57 +84,42 @@ export const Navbar = () => {
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: 'block', md: 'none' },
+              MenuListProps={{
+                sx:{display:"flex"}
               }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-          <Link to="/">
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            LOGO
-          </Typography>
-          </Link>
-          <Generalsearch/>
-
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
+              <MenuItem key={"Teams-item"}>
+              <Freeinput query={queryState} setQuery={setQuery}/>
+              </MenuItem>
+              <MenuItem key={"Date-items"}>
+              <Datetoggle query={queryState} setQuery={setQuery} />
+              </MenuItem>
+              <MenuItem key={"Location-item"}>
+              <Locationinput query={queryState} setQuery={setQuery}></Locationinput>
+              </MenuItem>
+              <MenuItem key={"Send-query"}>
+              {/* <Button
+              key={"Search"}
+              onClick={handleSearch}
+              sx={{ my: 2, color: 'black', display: 'block' ,border:"solid"}}
               >
-                {page}
-              </Button>
-            ))}
+                Search
+              </Button> */}
+              <Link  to={{
+                pathname: "/search",
+                search: "?text="+queryState.text+"&startDate="+queryState.startDate+"&endDate="+queryState.endDate+"%location="+queryState.location
+                }} >Search</Link>
+              </MenuItem>
+            </Menu>
+            </Box>
+
           </Box>
           
-          {userMode === 'guest' && <LoginSignupPopup/>} 
-
+          {userMode === 'guest' ? <LoginSignupPopup/> :
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
+            <Tooltip title="Profile">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar />
               </IconButton>
             </Tooltip>
             <Menu
@@ -165,11 +140,16 @@ export const Navbar = () => {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
+                    <Link to={'/'+setting}>
+                  <Typography textAlign="center">
+                    {setting}
+                    </Typography>
+                    </Link>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
+}
         </Toolbar>
       </Container>
     </AppBar>

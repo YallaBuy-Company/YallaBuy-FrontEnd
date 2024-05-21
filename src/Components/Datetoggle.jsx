@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import InputLabel from '@mui/material/InputLabel';
 import Box from '@mui/material/Box';
 
-export const Datetoggle = () => {
+export const Datetoggle = ({query,setQuery}) => {
   const [open, setOpen] = React.useState(false);
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
@@ -19,9 +19,9 @@ export const Datetoggle = () => {
   today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 for accurate comparison
 
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
+  // const handleOpen = () => {
+  //   setOpen(true);
+  // };
 
   const handleClose = () => {
     setOpen(false);
@@ -50,11 +50,46 @@ export const Datetoggle = () => {
 
   return (
     <div>
-      <Button onClick={handleOpen} variant="outlined">
-        Open Date Range Picker
-      </Button>
+      {/* <Button onClick={handleOpen} variant="outlined">
+        Select Dates
+      </Button> */}
+      <Box>
+            <InputLabel htmlFor="start-date">Start Date</InputLabel>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="start-date"
+                sx={{
+                  
+                }}
+                disablePast
+                value={startDate}
+                onChange={(date) =>{ setStartDate(date)
+                  setQuery({...query, startDate:date.format('DD/MM/YYYY')})
+                }}
+                format='DD/MM/YYYY'
+              />
+            </LocalizationProvider>
+          </Box>
+          <Box mt={2}>
+            <InputLabel htmlFor="end-date">End Date</InputLabel>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                id="end-date"
+                disablePast
+                minDate={startDate}
+                value={endDate}
+                onChange={(date) =>{ setEndDate(date)
+                  setQuery({...query, endDate:date.format('DD/MM/YYYY')})
+                }}
+                format='DD/MM/YYYY'
+              />
+            </LocalizationProvider>
+          </Box>
+
+     {/*
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Select Date Range</DialogTitle>
+        
         <DialogContent>
           <Box>
             <InputLabel htmlFor="start-date">Start Date</InputLabel>
@@ -84,6 +119,7 @@ export const Datetoggle = () => {
           <Button onClick={handleApply}>Apply</Button>
         </DialogActions>
       </Dialog>
+  */}
     </div>
   );
 };
