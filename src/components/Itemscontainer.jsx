@@ -17,6 +17,13 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import axios from 'axios';
+import { useContext } from 'react';
+import { UserContext } from './UserContext';
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -37,6 +44,7 @@ function TablePaginationActions(props) {
   const handleLastPageButtonClick = (event) => {
     onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
   };
+
 
   return (
     <Box sx={{ flexShrink: 0, ml: 2.5 }}>
@@ -80,9 +88,59 @@ TablePaginationActions.propTypes = {
 };
 
 export const Itemscontainer = ({rows}) => {
+  const { userMode } = useContext(UserContext);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortBy, setSortBy] = React.useState('formattedDate');
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Replace with actual login logic
+  const [favorites, setFavorites] = useState([]);
+
+  const isFavorite = (row) => {
+    return favorites.some((favorite) => favorite.formattedDate === row.formattedDate);
+  };
+
+  const handleFavoriteToggle = async (row) => {
+    if (userMode === 'guest') {
+      alert('Please log in to favorite events.');
+      return;
+    }
+
+    try {
+      if (isFavorite(row)) {
+        await handleFavorite(row, false);
+        setFavorites(favorites.filter((favorite) => favorite.formattedDate !== row.formattedDate));
+      } else {
+        await handleFavorite(row, true);
+        setFavorites([...favorites, row]);
+      }
+    } catch (error) {
+      alert('An error occurred while updating favorites.');
+    }
+  };
+
+  const handleFavorite = async (row, isAdd) => {
+    try {
+      let response;
+      if (isAdd) {
+        response = await axios.put('/favorites/', { event: row });
+      } else {
+        response = await axios.delete(`/users/games/${row.id}`); // Adjust the endpoint accordingly
+      }
+  
+      if (response.status === 200) {
+        if (isAdd) {
+          alert('Event favorited successfully!');
+        } else {
+          alert('Event unfavorited successfully!');
+        }
+      } else {
+        alert('Failed to update favorites.');
+      }
+    } catch (error) {
+      alert('An error occurred while updating favorites.');
+    }
+  };
 
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
@@ -148,6 +206,14 @@ export const Itemscontainer = ({rows}) => {
               <TableCell style={{ width: 160 }} align="right">
                 {row.price}
               </TableCell>
+              <TableCell style={{ width: 160}} align="right">
+                  <button onClick={() => handleFavoriteToggle(row)}>
+                    {isFavorite(row) ? <FavoriteIcon color="secondary" /> : <FavoriteBorderIcon />}
+                  </button>
+                </TableCell>
+                <TableCell style={{ width: 160 }} align="right">
+                  <button onClick={() => handleBuyTicket(row)}>Buy Ticket</button>
+                </TableCell>
             </TableRow>
           ))}
           {emptyRows > 0 && (
