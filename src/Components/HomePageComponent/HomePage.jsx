@@ -1,6 +1,8 @@
 import React from "react";
 import { Itemscontainer } from '../Itemscontainer'
 import { Cardgrid } from '../Cardgrid';
+
+
 export const HomePage = ()=> {
 
     function createData(date,team1,team2,location,price) {
@@ -31,11 +33,9 @@ export const HomePage = ()=> {
     ];
 
     return (
-        
-         <>
-           <Itemscontainer rows={rows}/>
-           <Cardgrid/>
+        <>
+          <Itemscontainer rows={rows}/>
+          <Cardgrid/>
         </>
-        
-      );
+    );
 }

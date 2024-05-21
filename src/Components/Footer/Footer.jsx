@@ -45,9 +45,9 @@ const items = [
     },
 ];
 
-const Footer = () => {
+export const Footer = () => {
     return (
-        <footer className="footer">
+        <div className="footer">
             <div className="container">
                 {sections.map((section, index) => (
                     <div className="section" key={index}>
@@ -67,8 +67,9 @@ const Footer = () => {
                     ))}
                 </div>
             </div>
-        </footer>
+        </div>
     );
 };
 
-export default Footer;
+
+
