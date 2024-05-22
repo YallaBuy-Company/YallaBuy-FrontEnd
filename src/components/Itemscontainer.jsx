@@ -169,8 +169,8 @@ export const Itemscontainer = ({ rows = [] }) => { // Default to an empty array 
         formattedDate: new Date(fixture.date).toLocaleDateString(), // Assuming 'date' has the full date string
         team1: teams.home.name,
         team2: teams.away.name,
-        location: `${fixture.venue?.city || 'NA'}`, // Use venue.city if available, 'NA' otherwise
-        venue: `${fixture.venue?.name || 'NA'}` // Assuming price information is not available, replace with actual price logic
+        location: `${fixture.venue?.city || 'NA'}`, // city name if available, 'NA' otherwise
+        venue: `${fixture.venue?.name || 'NA'}` // venue name if available, 'NA' otherwise
       };
     });
   };
