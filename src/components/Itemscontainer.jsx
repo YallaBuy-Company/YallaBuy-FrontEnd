@@ -18,11 +18,10 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import axios from 'axios';
-import { useContext } from 'react';
 import { UserContext } from './UserContext';
 
 function TablePaginationActions(props) {
@@ -44,7 +43,6 @@ function TablePaginationActions(props) {
   const handleLastPageButtonClick = (event) => {
     onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
   };
-
 
   return (
     <Box sx={{ flexShrink: 0, ml: 2.5 }}>
@@ -87,7 +85,7 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-export const Itemscontainer = ({rows}) => {
+export const Itemscontainer = ({ rows = [] }) => { // Default to an empty array if rows is undefined
   const { userMode } = useContext(UserContext);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -157,9 +155,29 @@ export const Itemscontainer = ({rows}) => {
   const handleSortChange = (event) => {
     setSortBy(event.target.value);
   };
+  
+  // Function to transform API response data into table rows
+  const formatTableData = (data) => {
+    if (!data) {
+      return []; // Return an empty array if data or data.response is undefined
+    }
 
-  const sortedRows = React.useMemo(() => {
-    return [...rows].sort((a, b) => {
+    return data.map((game) => {
+      const fixture = game.fixture;
+      const teams = game.teams;
+      return {
+        formattedDate: new Date(fixture.date).toLocaleDateString(), // Assuming 'date' has the full date string
+        team1: teams.home.name,
+        team2: teams.away.name,
+        location: `${fixture.venue?.city || 'NA'}`, // Use venue.city if available, 'NA' otherwise
+        venue: `${fixture.venue?.name || 'NA'}` // Assuming price information is not available, replace with actual price logic
+      };
+    });
+  };
+
+  const sortedRows = useMemo(() => {
+    const formattedData = formatTableData(rows);
+    return formattedData.sort((a, b) => {
       if (sortBy === 'formattedDate') {
         return new Date(a.formattedDate) - new Date(b.formattedDate);
       } else if (sortBy === 'price') {
@@ -204,7 +222,7 @@ export const Itemscontainer = ({rows}) => {
               {row.location}
               </TableCell>
               <TableCell style={{ width: 160 }} align="right">
-                {row.price}
+                {row.venue}
               </TableCell>
               <TableCell style={{ width: 160}} align="right">
                   <button onClick={() => handleFavoriteToggle(row)}>
