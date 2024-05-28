@@ -10,6 +10,7 @@ export const SearchPage = () => {
   const [games, setGames] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [resmes, setMessage] = useState("");
 
   const getQueryParams = () => {
     const searchParams = new URLSearchParams(location.search);
@@ -33,6 +34,7 @@ export const SearchPage = () => {
 
       try {
         const { allGames, resMes } = await getGames(country, city, team, league, dateFrom, dateTo);
+        setMessage(resMes)
         setGames(allGames);
 
         if (resMes) {
@@ -70,10 +72,9 @@ export const SearchPage = () => {
     <>
       {handleError()}
       {handleLoading()}
-      <Link to="/search?dateFrom=2024-06-06">Back to Home</Link>
       {games.length > 0 && (
         <>
-          <Itemscontainer rows={games} />
+          <Itemscontainer rows={games} resmes={resmes} />
           <Cardgrid />
         </>
       )}

@@ -2,124 +2,92 @@ import * as React from 'react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import Button from '@mui/material/Button';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import InputLabel from '@mui/material/InputLabel';
-import Box from '@mui/material/Box';
+import { Chip } from '@mui/material';
+import { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 
-export const Datetoggle = ({query,setQuery}) => {
-  const [open, setOpen] = React.useState(false);
-  const [startDate, setStartDate] = React.useState(null);
-  const [endDate, setEndDate] = React.useState(null);
+export const Datetoggle = ({ query, setQuery }) => {
+  const [dateFrom, setStartDate] = useState(null);
+  const [dateTo, setEndDate] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
-  const today = new Date(); // Get today's date
-  today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 for accurate comparison
+  useEffect(() => {
+    if (query.startDate) {
+      setStartDate(dayjs(query.dateFrom, 'DD/MM/YYYY'));
+    }
+    if (query.endDate) {
+      setEndDate(dayjs(query.dateTo, 'DD/MM/YYYY'));
+    }
+  }, [query]);
 
-
-  // const handleOpen = () => {
-  //   setOpen(true);
-  // };
-
-  const handleClose = () => {
-    setOpen(false);
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
   };
 
-  const handleApply = () => {
-    if (!startDate) {
-      alert('Please select a start date.');
-      return;
-    }
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
 
-    if (startDate < today) {
-      alert('Start date cannot be earlier than today.');
-      return;
+  const handleSelectDate = (date, type) => {
+    if (type === 'start') {
+      setStartDate(date);
+      setQuery(prevQuery => ({ ...prevQuery, dateFrom: date ? date.format('DD/MM/YYYY') : '' }));
+    } else if (type === 'end') {
+      setEndDate(date);
+      setQuery(prevQuery => ({ ...prevQuery, dateTo: date ? date.format('DD/MM/YYYY') : '' }));
     }
-
-    if (endDate && endDate < startDate) {
-      alert('End date cannot be earlier than the start date.');
-      return;
-    }
-
-    console.log('Start Date:', startDate);
-    console.log('End Date:', endDate);
-    handleClose();
   };
 
   return (
-    <div>
-      {/* <Button onClick={handleOpen} variant="outlined">
-        Select Dates
-      </Button> */}
-      <Box>
-            <InputLabel htmlFor="start-date">Start Date</InputLabel>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                id="start-date"
-                sx={{
-                  
-                }}
-                disablePast
-                value={startDate}
-                onChange={(date) =>{ setStartDate(date)
-                  setQuery({...query, startDate:date.format('DD/MM/YYYY')})
-                }}
-                format='DD/MM/YYYY'
-              />
-            </LocalizationProvider>
-          </Box>
-          <Box mt={2}>
-            <InputLabel htmlFor="end-date">End Date</InputLabel>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                id="end-date"
-                disablePast
-                minDate={startDate}
-                value={endDate}
-                onChange={(date) =>{ setEndDate(date)
-                  setQuery({...query, endDate:date.format('DD/MM/YYYY')})
-                }}
-                format='DD/MM/YYYY'
-              />
-            </LocalizationProvider>
-          </Box>
-
-     {/*
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Select Date Range</DialogTitle>
-        
+    <>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Chip label="Select Dates" onClick={handleOpenDialog} />
+        </Grid>
+      </Grid>
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Select Dates</DialogTitle>
         <DialogContent>
-          <Box>
-            <InputLabel htmlFor="start-date">Start Date</InputLabel>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                id="start-date"
-                value={startDate}
-                onChange={(date) => setStartDate(date)}
-                format='DD/MM/YYYY'
-              />
-            </LocalizationProvider>
-          </Box>
-          <Box mt={2}>
-            <InputLabel htmlFor="end-date">End Date</InputLabel>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                id="end-date"
-                value={endDate}
-                onChange={(date) => setEndDate(date)}
-                format='DD/MM/YYYY'
-              />
-            </LocalizationProvider>
-          </Box>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <InputLabel htmlFor="start-date">Start Date</InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  sx={{ width: '100%' }}
+                  id="start-date"
+                  disablePast
+                  value={dateFrom}
+                  onChange={(date) => handleSelectDate(date, 'start')}
+                  format='DD/MM/YYYY'
+                />
+              </LocalizationProvider>
+            </Grid>
+            <Grid item xs={6}>
+              <InputLabel htmlFor="end-date">End Date</InputLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  sx={{ width: '100%' }}
+                  id="end-date"
+                  disablePast
+                  minDate={dateFrom}
+                  value={dateTo}
+                  onChange={(date) => handleSelectDate(date, 'end')}
+                  format='DD/MM/YYYY'
+                />
+              </LocalizationProvider>
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleApply}>Apply</Button>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button variant="contained" onClick={handleCloseDialog}>
+            Apply
+          </Button>
         </DialogActions>
       </Dialog>
-  */}
-    </div>
+    </>
   );
 };

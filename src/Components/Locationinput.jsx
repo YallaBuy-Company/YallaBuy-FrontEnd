@@ -1,156 +1,235 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import parse from 'autosuggest-highlight/parse';
-import { debounce } from '@mui/material/utils';
-import { loadGoogleMapsScript } from '../apis/api';
+import { debounce } from '@mui/material';
+import { Chip } from '@mui/material';
+import { Geocoder } from '@google/maps';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY;
 
+function loadScript(src, position, id) {
+  if (!position) {
+    return;
+  }
 
-export const Locationinput = ({query,setQuery}) => {
-    const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
-    const [inputValue, setInputValue] = useState('');
-    const [options, setOptions] = useState([]);
-    const [scriptLoaded, setScriptLoaded] = useState(false);
+  const script = document.createElement('script');
+  script.setAttribute('async', '');
+  script.setAttribute('id', id);
+  script.src = src;
+  position.appendChild(script);
+}
 
-    useEffect(() => {
-        loadGoogleMapsScript(GOOGLE_MAPS_API_KEY, () => {
-            setScriptLoaded(true);
-        });
-    }, []);
+const autocompleteService = { current: null };
 
-    const autocompleteService = useMemo(() => {
-        if (scriptLoaded && window.google) {
-            console.log('Google Maps API is available.');
-            return new window.google.maps.places.AutocompleteService();
+export const Locationinput = ({ query, setQuery }) => {
+  const [value, setValue] = useState(null);
+  const [inputValue, setInputValue] = useState('');
+  const [options, setOptions] = useState([]);
+  const [open, setOpen] = useState(false);
+  const loaded = useRef(false);
+
+  if (typeof window !== 'undefined' && !loaded.current) {
+    if (!document.querySelector('#google-maps')) {
+      loadScript(
+        `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`,
+        document.querySelector('head'),
+        'google-maps'
+      );
+    }
+
+    loaded.current = true;
+  }
+
+  const fetch = useMemo(
+    () =>
+      debounce((request, callback) => {
+        autocompleteService.current.getPlacePredictions(
+          { ...request, language: 'en' }, // Set language to 'en' for English
+          callback
+        );
+      }, 400),
+    []
+  );
+  
+
+  let geocoder = null;
+
+  useEffect(() => {
+    
+    let active = true;
+    if (typeof window !== 'undefined' && !loaded.current) {
+      // ... script loading logic
+      loaded.current = true;
+    }
+
+  
+    if (!autocompleteService.current && window.google) {
+      autocompleteService.current =
+        new window.google.maps.places.AutocompleteService();
+    }
+    if (!autocompleteService.current) {
+      return undefined;
+    }
+
+    if (inputValue === '') {
+      setOptions(value ? [value] : []);
+      return undefined;
+    }
+
+    fetch({ input: inputValue }, (results) => {
+      if (active) {
+        let newOptions = [];
+
+        if (value) {
+          newOptions = [value];
         }
-        console.log('Google Maps API is not available yet.');
-        return null;
-    }, [scriptLoaded]);
 
-    useEffect(() => {
-        let active = true;
-
-        if (!autocompleteService || inputValue === '') {
-            setOptions(value ? [value] : []);
-            return undefined;
+        if (results) {
+          newOptions = [...newOptions, ...results];
         }
 
-        const fetchPredictions = debounce((request, callback) => {
-            autocompleteService.getPlacePredictions(request, callback);
-        }, 400);
+        setOptions(newOptions);
+      }
+    });
 
-        fetchPredictions({ input: inputValue }, (results) => {
-            if (active) {
-                let newOptions = [];
+    return () => {
+      active = false;
+    };
+  }, [value, inputValue, fetch]);
 
-                if (value) {
-                    newOptions = [value];
-                }
+  const handleDialogToggle = () => {
+    setOpen(!open);
+  };
 
-                if (results) {
-                    newOptions = [...newOptions, ...results];
-                }
+  const handleApply = () => {
+    setValue(inputValue);
+    handleDialogToggle();
+  };
 
-                setOptions(newOptions);
+  const reverseGeocode = async (address) => {
+    if (!address) {
+      return { city: '', country: '' };
+    }
+  // Create geocoder only if it's not already created
+  if (!geocoder && window.google) {
+    geocoder = new window.google.maps.Geocoder();
+  }
+
+  if (!geocoder) {
+    return { city: '', country: '' }; // Handle case where geocoder couldn't be created
+  }
+  try {
+    
+    const {results} = await geocoder.geocode({ address, language: 'en' });
+    let r = results[0]
+    if (!results || !results[0]) {
+      console.error('Geocoding failed: No results found');
+      return { city: '', country: '' }; // Handle no results scenario
+    }
+    const addressComponents = results[0].address_components;
+    const city = addressComponents.find(
+      (component) => component.types.includes('locality')
+    )?.long_name || '';
+    const country = addressComponents.find(
+      (component) => component.types.includes('country')
+    )?.long_name;
+
+    return { city, country };
+  } catch (error) {
+    console.error('Error fetching location details:', error);
+    return { city: '', country: '' }; // Handle errors gracefully
+  }
+  };
+  
+  const handleLocationChange = async (event,newValue) => {
+    setOptions(newValue ? [newValue, ...options] : options);
+    if (newValue) {
+      const { city, country } = await reverseGeocode(newValue.description);
+      setValue(newValue);
+      setQuery({ ...query, location: newValue.description, city, country });
+    } else {
+      setValue(newValue);
+      setQuery({ ...query, location: '', city: '', country: '' });
+    }
+  };
+
+  return (
+    <>
+      <Chip onClick={handleDialogToggle} label="Select Location" icon={<LocationOnIcon />} variant="outlined" />
+      <Dialog open={open} onClose={handleDialogToggle} PaperProps={{ sx: { minWidth: '30vw' } }}>
+        <DialogTitle>Select Location</DialogTitle>
+        <DialogContent>
+          <Autocomplete
+            id="google-map-demo"
+            sx={{ width: 300 }}
+            getOptionLabel={(option) =>
+              typeof option === 'string' ? option : option.description
             }
-        });
+            filterOptions={(x) => x}
+            options={options}
+            autoComplete
+            includeInputInList
+            filterSelectedOptions
+            value={value}
+            noOptionsText="No locations"
+            onChange={handleLocationChange}
+            onInputChange={(event, newInputValue) => {
+              setInputValue(newInputValue);
+            }}
+            renderInput={(params) => (
+              <TextField {...params} label="Add a location" fullWidth />
+            )}
+            renderOption={(props, option) => {
+              const matches =
+                option.structured_formatting.main_text_matched_substrings || [];
 
-        return () => {
-            active = false;
-        };
-    }, [value, inputValue, autocompleteService]);
+              const parts = parse(
+                option.structured_formatting.main_text,
+                matches.map((match) => [match.offset, match.offset + match.length])
+              );
 
-    const handleDialogToggle = () => {
-        setOpen(!open);
-    };
-
-    const handleApply = () => {
-        setValue(inputValue);
-        handleDialogToggle();
-    };
-
-    return (
-        <>
-            <Button onClick={handleDialogToggle} startIcon={<LocationOnIcon />} variant="outlined">
-                Select Location
-            </Button>
-            <Dialog open={open} onClose={handleDialogToggle} PaperProps={{ sx: { minWidth: '30vw' } }}>
-                <DialogTitle>Select Location</DialogTitle>
-                <DialogContent>
-                    <Autocomplete
-                        id="google-map-demo"
-                        getOptionLabel={(option) =>
-                            typeof option === 'string' ? option : option.description
-                        }
-                        filterOptions={(x) => x}
-                        options={options}
-                        autoComplete
-                        includeInputInList
-                        filterSelectedOptions
-                        value={value}
-                        onChange={(event, newValue) => {
-                            setOptions(newValue ? [newValue, ...options] : options);
-                            setValue(newValue);
-                        }}
-                        onInputChange={(event, newInputValue) => {
-                            setInputValue(newInputValue);
-                            setQuery({...query, location : newInputValue})
-                        }}
-                        renderInput={(params) => (
-                            <TextField {...params} label="Add a location" fullWidth sx={{ paddingBottom: '24px' }} />
-                        )}
-                        renderOption={(props, option) => {
-                            const matches =
-                                option.structured_formatting.main_text_matched_substrings || [];
-
-                            const parts = parse(
-                                option.structured_formatting.main_text,
-                                matches.map((match) => [match.offset, match.offset + match.length]),
-                            );
-
-                            return (
-                                <li {...props}>
-                                    <Grid container alignItems="center">
-                                        <Grid item sx={{ display: 'flex', width: 44 }}>
-                                            <LocationOnIcon sx={{ color: 'text.secondary' }} />
-                                        </Grid>
-                                        <Grid item sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}>
-                                            {parts.map((part, index) => (
-                                                <Typography
-                                                    key={index}
-                                                    component="span"
-                                                    variant="body2"
-                                                    sx={{ fontWeight: part.highlight ? 'bold' : 'regular' }}
-                                                >
-                                                    {part.text}
-                                                </Typography>
-                                            ))}
-                                            <Typography variant="body2" color="text.secondary">
-                                                {option.structured_formatting.secondary_text}
-                                            </Typography>
-                                        </Grid>
-                                    </Grid>
-                                </li>
-                            );
-                        }}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleDialogToggle}>Cancel</Button>
-                    <Button onClick={handleApply}>Apply</Button>
-                </DialogActions>
-            </Dialog>
-        </>
-    );
+              return (
+                <li {...props}>
+                  <Grid container alignItems="center">
+                    <Grid item sx={{ display: 'flex', width: 44 }}>
+                      <LocationOnIcon sx={{ color: 'text.secondary' }} />
+                    </Grid>
+                    <Grid item sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}>
+                      {parts.map((part, index) => (
+                        <Box
+                          key={index}
+                          component="span"
+                          sx={{ fontWeight: part.highlight ? 'bold' : 'regular' }}
+                        >
+                          {part.text}
+                        </Box>
+                      ))}
+                      <Typography variant="body2" color="text.secondary">
+                        {option.structured_formatting.secondary_text}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </li>
+              );
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogToggle}>Cancel</Button>
+          <Button onClick={handleApply}>Apply</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
 };
+
