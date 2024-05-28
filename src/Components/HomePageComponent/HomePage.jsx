@@ -34,7 +34,7 @@ export const HomePage = ()=> {
 
     return (
         <>
-          <Itemscontainer rows={rows}/>
+          {/*<Itemscontainer rows={rows}/>*/}
           <Cardgrid/>
         </>
     );

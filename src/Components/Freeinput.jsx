@@ -11,9 +11,9 @@ const CustomListbox = React.forwardRef(function CustomListbox(props, ref) {
             {React.Children.toArray(children).slice(0, 3)}
         </List>
     );
-  });
-  
-  export const Freeinput = ({query , setQuery}) => {
+});
+
+export const Freeinput = ({ query, setQuery }) => {
     const [inputValue, setInputValue] = React.useState('');
     const [selectedOption, setSelectedOption] = React.useState(null);
     const [options, setOptions] = React.useState([]);
@@ -24,7 +24,7 @@ const CustomListbox = React.forwardRef(function CustomListbox(props, ref) {
             try {
                 const leagueResponse = await fetch('http://localhost:3000/leagues/names');
                 const teamResponse = await fetch('http://localhost:3000/teams/names');
-                
+
                 const leagues = await leagueResponse.json();
                 const teams = await teamResponse.json();
 
@@ -48,29 +48,68 @@ const CustomListbox = React.forwardRef(function CustomListbox(props, ref) {
     };
 
     const handleOptionChange = (event, newOption) => {
-      setQuery({...query , text : newOption.value})
-      setSelectedOption(newOption);
+        if (newOption) {
+            const newQuery = { ...query };
+            if (newOption.type === 'League') {
+                newQuery.league = newOption.label;
+                delete newQuery.team; // Remove the team key if a league is selected
+            } else if (newOption.type === 'Team') {
+                newQuery.team = newOption.label;
+                delete newQuery.league; // Remove the league key if a team is selected
+            }
+            setQuery(newQuery);
+        } else {
+            setQuery(prevQuery => {
+                const newQuery = { ...prevQuery };
+                delete newQuery.league;
+                delete newQuery.team;
+                return newQuery;
+            });
+        }
+        setSelectedOption(newOption);
     };
 
     return (
         <Autocomplete
+            sx={{
+                '& .MuiAutocomplete-root': {
+                    width: '200px',
+                    backgroundColor: '#f5f5f5',
+                },
+                '& .MuiInputBase-root': {
+                    width: '200px',
+                    paddingTop: '0',
+                    paddingBottom: '0',
+                    borderRadius: '4px',
+                },
+                '& .MuiAutocomplete-listbox': {
+                    overflowY: 'auto',
+                },
+                '& .MuiFormControl-root': {
+                    width: '200px',
+                    paddingTop: '0',
+                    paddingBottom: '0',
+                    borderRadius: '4px',
+                },
+            }}
             value={selectedOption}
             onChange={handleOptionChange}
             inputValue={inputValue}
             onInputChange={handleInputChange}
             options={options}
             getOptionLabel={(option) => option.label}
-            ListboxComponent={CustomListbox}
             renderOption={(props, option) => (
                 <li {...props}>
                     {option.label} ({option.type})
                 </li>
             )}
+            clearOnEscape
             renderInput={(params) => (
                 <TextField
                     {...params}
                     label="Search"
                     variant="outlined"
+                    size="small"
                 />
             )}
         />

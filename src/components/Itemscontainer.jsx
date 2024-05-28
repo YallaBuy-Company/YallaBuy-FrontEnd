@@ -85,7 +85,7 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-export const Itemscontainer = ({ rows = [] }) => { // Default to an empty array if rows is undefined
+export const Itemscontainer = ({ rows = [],resmes }) => { // Default to an empty array if rows is undefined
   const { userMode } = useContext(UserContext);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -193,7 +193,7 @@ export const Itemscontainer = ({ rows = [] }) => { // Default to an empty array 
       <Table sx={{}} aria-label="custom pagination table">
       <TableRow>
         
-          <TableCell colSpan={4} style={{ padding: '10px' }}>
+          <TableCell colSpan={1} style={{ padding: '10px' }}>
             Sort by:
             <Select
               value={sortBy}
@@ -204,8 +204,10 @@ export const Itemscontainer = ({ rows = [] }) => { // Default to an empty array 
               <MenuItem value="price">Price</MenuItem>
             </Select>
           </TableCell>
+          <TableCell colSpan={5} style={{ padding: '10px' }}>
+          {resmes}
+          </TableCell>
         </TableRow>
-
         <TableBody>
           {(rowsPerPage > 0
             ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
