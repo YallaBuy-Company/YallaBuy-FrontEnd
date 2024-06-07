@@ -53,7 +53,6 @@ function App() {
               <Container sx={{ width: "80%" }}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
-                  <Route path="/ads" element={<AdsCarousel/>} />
                   <Route path="/search" element={<SearchPage />} />
                   <Route path="/settings" element={<PersonalSettingsPage />} />
                   <Route path="/manager" element={<ManagerPage />} />

@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { UserContext } from '../UserContext';
 import { Link, useNavigate } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -12,22 +13,30 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import LoginSignupPopup from '../LoginSignupPopup';
-import { UserContext } from '../UserContext';
 import { Freeinput } from '../Freeinput';
 import { Datetoggle } from '../Datetoggle';
 import { Locationinput } from '../Locationinput';
 import dayjs from 'dayjs';
 import Logo from '../Logo'; // Import the Logo component
-
-const settings = ['Account', 'Logout'];
+import { Menu } from '@mui/material';
+import { deepOrange } from '@mui/material/colors';
 
 export const Navbar = () => {
-  const [queryState, setQuery] = useState({
-    dateFrom: '',
-  });
-  const { userMode } = useContext(UserContext);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [queryState, setQuery] = useState({ dateFrom: '' });
+  const { userMode, setUserMode, user } = useContext(UserContext);
+  const [anchorElUser, setAnchorElUser] = useState(null);
   const navigate = useNavigate();
+
+  // Extract initials from fullName or email
+  const getInitials = () => {
+    if (user?.fullName) {
+      const names = user.fullName.split(' ');
+      return names.map(name => name[0]).join('').toUpperCase();
+    }
+    return user?.email?.slice(0, 2).toUpperCase() || 'N'; // Default to 'N'
+  };
+
+  const initials = getInitials();
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -37,15 +46,24 @@ export const Navbar = () => {
     setAnchorElUser(null);
   };
 
+  const handleLogout = () => {
+    // Remove token from localStorage
+    localStorage.removeItem('authToken');
+
+    // Update user mode state in UserContext
+    setUserMode('guest');
+    handleCloseUserMenu();
+  };
+
   const handleSearch = () => {
     let updatedQueryState = { ...queryState };
-  
+
     if (!queryState.dateFrom) {
       const today = dayjs().format('DD/MM/YYYY');
       updatedQueryState = { ...updatedQueryState, dateFrom: today };
       setQuery(updatedQueryState); // Update state with the new start date
     }
-  
+
     const searchParams = new URLSearchParams(updatedQueryState).toString();
     navigate(`/search?${searchParams}`);
   };
@@ -62,15 +80,15 @@ export const Navbar = () => {
             <Grid item xs={8}>
               <Grid container direction="column" spacing={2}>
                 <Grid item>
-                  <Grid container spacing={2} alignItems="center" >
+                  <Grid container spacing={2} alignItems="center">
                     <Grid item>
                       <Freeinput query={queryState} setQuery={setQuery} />
                     </Grid>
                     <Grid item>
                       <Button
-                        key={"Search"}
+                        key="Search"
                         onClick={handleSearch}
-                        sx={{ color: 'black', border: "solid" }}
+                        sx={{ color: 'black', border: 'solid' }}
                       >
                         Search
                       </Button>
@@ -95,7 +113,7 @@ export const Navbar = () => {
                 <Box sx={{ flexGrow: 0 }}>
                   <Tooltip title="Profile">
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                      <Avatar />
+                      <Avatar sx={{ bgcolor: deepOrange[500] }}>{initials}</Avatar>
                     </IconButton>
                   </Tooltip>
                   <Menu
@@ -114,15 +132,18 @@ export const Navbar = () => {
                     open={Boolean(anchorElUser)}
                     onClose={handleCloseUserMenu}
                   >
-                    {settings.map((setting) => (
-                      <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                        <Link to={'/' + setting}>
-                          <Typography textAlign="center">
-                            {setting}
-                          </Typography>
-                        </Link>
-                      </MenuItem>
-                    ))}
+                    <MenuItem key="Logout" onClick={handleCloseUserMenu}>
+                      <Button variant="contained" color="error" onClick={handleLogout} sx={{ fontSize: '14px' }}>
+                        Logout
+                      </Button>
+                    </MenuItem>
+                    <MenuItem key="settings" onClick={handleCloseUserMenu}>
+                      <Link to="/settings">
+                        <Typography textAlign="center">
+                          Settings
+                        </Typography>
+                      </Link>
+                    </MenuItem>
                   </Menu>
                 </Box>
               }
