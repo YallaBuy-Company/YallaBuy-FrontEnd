@@ -98,11 +98,16 @@ export const Freeinput = ({ query, setQuery }) => {
             onInputChange={handleInputChange}
             options={options}
             getOptionLabel={(option) => option.label}
-            renderOption={(props, option) => (
-                <li {...props}>
-                    {option.label} ({option.type})
-                </li>
-            )}
+
+            renderOption={(props, option) => { 
+                const { key, ...restProps } = props;
+
+                return (
+                    <li key={option.value} {...restProps}>
+                        {option.label} ({option.type})
+                    </li>
+                );
+            }}
             clearOnEscape
             renderInput={(params) => (
                 <TextField

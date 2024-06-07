@@ -107,6 +107,40 @@ export const Locationinput = ({ query, setQuery }) => {
     };
   }, [value, inputValue, fetch]);
 
+
+  useEffect(() => {
+    const requestLocationPermission = async () => {
+      if (navigator.geolocation) {
+        const status = await navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            // Use latitude and longitude to fetch initial location data (optional)
+            console.log('User location:', latitude, longitude);
+  
+            // Fetch city and country information based on the user's current location
+            const address = `${latitude},${longitude}`;
+            const { city, country } = await reverseGeocode(address);
+            setQuery({ ...query, location: address, city, country });
+  
+            console.log(`Location permission granted ,city:${city} , country:${country}`);
+          },
+          (error) => {
+            console.error('Error getting location:', error.message);
+          }
+        );
+  
+        if (status !== navigator.permissions.GRANTED) {
+          console.log('Location permission denied');
+        }
+      } else {
+        console.log('Geolocation is not supported by this browser');
+      }
+    };
+  
+    // Request location permission only once on component mount
+    requestLocationPermission();
+  }, []);
+  
   const handleDialogToggle = () => {
     setOpen(!open);
   };
@@ -117,38 +151,38 @@ export const Locationinput = ({ query, setQuery }) => {
   };
 
   const reverseGeocode = async (address) => {
-    if (!address) {
-      return { city: '', country: '' };
+      if (!address) {
+        return { city: '', country: '' };
+      }
+    // Create geocoder only if it's not already created
+    if (!geocoder && window.google) {
+      geocoder = new window.google.maps.Geocoder();
     }
-  // Create geocoder only if it's not already created
-  if (!geocoder && window.google) {
-    geocoder = new window.google.maps.Geocoder();
-  }
 
-  if (!geocoder) {
-    return { city: '', country: '' }; // Handle case where geocoder couldn't be created
-  }
-  try {
-    
-    const {results} = await geocoder.geocode({ address, language: 'en' });
-    let r = results[0]
-    if (!results || !results[0]) {
-      console.error('Geocoding failed: No results found');
-      return { city: '', country: '' }; // Handle no results scenario
+    if (!geocoder) {
+      return { city: '', country: '' }; // Handle case where geocoder couldn't be created
     }
-    const addressComponents = results[0].address_components;
-    const city = addressComponents.find(
-      (component) => component.types.includes('locality')
-    )?.long_name || '';
-    const country = addressComponents.find(
-      (component) => component.types.includes('country')
-    )?.long_name;
+    try {
+      
+      const {results} = await geocoder.geocode({ address, language: 'en' });
+      let r = results[0]
+      if (!results || !results[0]) {
+        console.error('Geocoding failed: No results found');
+        return { city: '', country: '' }; // Handle no results scenario
+      }
+      const addressComponents = results[0].address_components;
+      const city = addressComponents.find(
+        (component) => component.types.includes('locality')
+      )?.long_name || '';
+      const country = addressComponents.find(
+        (component) => component.types.includes('country')
+      )?.long_name;
 
-    return { city, country };
-  } catch (error) {
-    console.error('Error fetching location details:', error);
-    return { city: '', country: '' }; // Handle errors gracefully
-  }
+      return { city, country };
+    } catch (error) {
+      console.error('Error fetching location details:', error);
+      return { city: '', country: '' }; // Handle errors gracefully
+    }
   };
   
   const handleLocationChange = async (event,newValue) => {
@@ -163,9 +197,17 @@ export const Locationinput = ({ query, setQuery }) => {
     }
   };
 
+  const [chipLabel, setChipLabel] = useState('Select Location');
+
+  useEffect(() => {
+    const hasLocation = query.country && query.location.trim() !== '';
+    const newChipLabel = hasLocation ? `${query.country},${query.city}` : 'Select Location';
+    setChipLabel(newChipLabel);
+  }, [query.location]);
+
   return (
     <>
-      <Chip onClick={handleDialogToggle} label="Select Location" icon={<LocationOnIcon />} variant="outlined" />
+      <Chip onClick={handleDialogToggle} label={chipLabel} icon={<LocationOnIcon />} variant="outlined" />
       <Dialog open={open} onClose={handleDialogToggle} PaperProps={{ sx: { minWidth: '30vw' } }}>
         <DialogTitle>Select Location</DialogTitle>
         <DialogContent>
@@ -197,10 +239,10 @@ export const Locationinput = ({ query, setQuery }) => {
                 option.structured_formatting.main_text,
                 matches.map((match) => [match.offset, match.offset + match.length])
               );
-
+              
               return (
-                <li {...props}>
-                  <Grid container alignItems="center">
+                <li key={props.key} {...props}>
+                <Grid container alignItems="center">
                     <Grid item sx={{ display: 'flex', width: 44 }}>
                       <LocationOnIcon sx={{ color: 'text.secondary' }} />
                     </Grid>
