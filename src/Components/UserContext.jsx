@@ -80,7 +80,7 @@ export const UserProvider = ({ children }) => {
             params: { email: userState.email },
           });
           setUserMode('user', response.data);
-          setFavoriteGames(response.data.favoriteGames || []);
+          setFavoriteGames(response.data.games || []);
         } catch (error) {
           console.error(error);
         }
