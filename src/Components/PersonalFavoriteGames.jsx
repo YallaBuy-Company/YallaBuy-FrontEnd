@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Grid, Box } from '@mui/material';
 
-const FavoriteGames = ({ favoriteGames }) => {
+const PersonalFavoriteGames = ({ favoriteGames }) => {
   const [games, setGames] = useState(favoriteGames);
 
   const handleChange = (index, e) => {
@@ -94,11 +94,8 @@ const FavoriteGames = ({ favoriteGames }) => {
           </Grid>
         </Box>
       ))}
-      <Button variant="contained" color="primary" onClick={handleUpdate}>
-        Update
-      </Button>
     </Container>
   );
 };
 
-export default FavoriteGames;
+export default PersonalFavoriteGames;

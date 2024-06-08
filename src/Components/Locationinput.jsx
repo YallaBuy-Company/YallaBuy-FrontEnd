@@ -13,7 +13,6 @@ import Typography from '@mui/material/Typography';
 import parse from 'autosuggest-highlight/parse';
 import { debounce } from '@mui/material';
 import { Chip } from '@mui/material';
-import { Geocoder } from '@google/maps';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY;
 
@@ -205,9 +204,30 @@ export const Locationinput = ({ query, setQuery }) => {
     setChipLabel(newChipLabel);
   }, [query.location]);
 
+  const handleChooseLocation = async () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          const address = `${latitude},${longitude}`;
+          const { city, country } = await reverseGeocode(address);
+          setQuery({ ...query, location: address, city, country });
+        },
+        (error) => {
+          console.error('Error getting location:', error.message);
+        }
+      );
+    }
+  };
+
+  const handleCleanLocation = () => {
+    setQuery({ ...query, location: '', city: '', country: '' });
+  };
+
   return (
     <>
       <Chip onClick={handleDialogToggle} label={chipLabel} icon={<LocationOnIcon />} variant="outlined" />
+
       <Dialog open={open} onClose={handleDialogToggle} PaperProps={{ sx: { minWidth: '30vw' } }}>
         <DialogTitle>Select Location</DialogTitle>
         <DialogContent>
@@ -248,14 +268,16 @@ export const Locationinput = ({ query, setQuery }) => {
                     </Grid>
                     <Grid item sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}>
                       {parts.map((part, index) => (
-                        <Box
+                        <span
                           key={index}
-                          component="span"
-                          sx={{ fontWeight: part.highlight ? 'bold' : 'regular' }}
+                          style={{
+                            fontWeight: part.highlight ? 700 : 400,
+                          }}
                         >
                           {part.text}
-                        </Box>
+                        </span>
                       ))}
+
                       <Typography variant="body2" color="text.secondary">
                         {option.structured_formatting.secondary_text}
                       </Typography>
@@ -265,6 +287,8 @@ export const Locationinput = ({ query, setQuery }) => {
               );
             }}
           />
+        <Chip onClick={handleChooseLocation} label="Choose Your Location" variant="outlined" />
+        <Chip onClick={handleCleanLocation} label="Clean Location" variant="outlined" /> 
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogToggle}>Cancel</Button>
@@ -274,4 +298,3 @@ export const Locationinput = ({ query, setQuery }) => {
     </>
   );
 };
-
