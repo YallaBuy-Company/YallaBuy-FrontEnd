@@ -1,4 +1,5 @@
-import * as React from 'react';
+// src/components/Itemscontainer.jsx
+import React, { useState, useMemo, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -17,8 +18,6 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { useNavigate } from 'react-router-dom';
-import { useState, useMemo, useContext } from 'react';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import axios from 'axios';
@@ -85,18 +84,12 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-export const Itemscontainer = ({ rows = [],resmes }) => { // Default to an empty array if rows is undefined
-  const { userMode } = useContext(UserContext);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortBy, setSortBy] = React.useState('formattedDate');
-  const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Replace with actual login logic
-  const [favorites, setFavorites] = useState([]);
+export const Itemscontainer = ({ rows = [], resmes }) => {
+  const { userMode, user, favoriteGames, setFavoriteGames } = useContext(UserContext);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortBy, setSortBy] = useState('formattedDate');
 
-  const isFavorite = (row) => {
-    return favorites.some((favorite) => favorite.formattedDate === row.formattedDate);
-  };
 
   const handleFavoriteToggle = async (row) => {
     if (userMode === 'guest') {
@@ -107,10 +100,10 @@ export const Itemscontainer = ({ rows = [],resmes }) => { // Default to an empty
     try {
       if (isFavorite(row)) {
         await handleFavorite(row, false);
-        setFavorites(favorites.filter((favorite) => favorite.formattedDate !== row.formattedDate));
+        setFavoriteGames(favoriteGames.filter((favorite) => favorite.id !== row.id));
       } else {
         await handleFavorite(row, true);
-        setFavorites([...favorites, row]);
+        setFavoriteGames([...favoriteGames, row]);
       }
     } catch (error) {
       alert('An error occurred while updating favorites.');
@@ -121,11 +114,11 @@ export const Itemscontainer = ({ rows = [],resmes }) => { // Default to an empty
     try {
       let response;
       if (isAdd) {
-        response = await axios.put('/favorites/', { event: row });
+        response = await axios.put(`/favorites/${user.id}`, { event: row });
       } else {
-        response = await axios.delete(`/users/games/${row.id}`); // Adjust the endpoint accordingly
+        response = await axios.delete(`/favorites/${user.id}`, { data: { eventId: row.id } });
       }
-  
+
       if (response.status === 200) {
         if (isAdd) {
           alert('Event favorited successfully!');
@@ -140,8 +133,7 @@ export const Itemscontainer = ({ rows = [],resmes }) => { // Default to an empty
     }
   };
 
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -155,117 +147,100 @@ export const Itemscontainer = ({ rows = [],resmes }) => { // Default to an empty
   const handleSortChange = (event) => {
     setSortBy(event.target.value);
   };
-  
-  // Function to transform API response data into table rows
+
   const formatTableData = (data) => {
     if (!data) {
-      return []; // Return an empty array if data or data.response is undefined
+      return [];
     }
 
     return data.map((game) => {
       const fixture = game.fixture;
       const teams = game.teams;
       return {
-        formattedDate: new Date(fixture.date).toLocaleDateString(), // Assuming 'date' has the full date string
+        formattedDate: new Date(fixture.date).toLocaleDateString(),
         team1: teams.home.name,
         team2: teams.away.name,
-        location: `${fixture.venue?.city || 'NA'}`, // Use venue.city if available, 'NA' otherwise
-        venue: `${fixture.venue?.name || 'NA'}` // Assuming price information is not available, replace with actual price logic
+        venue: fixture.venue.name,
+        city: fixture.venue.city,
+        id: fixture.id, // assuming `game` object has an `id` field
       };
     });
   };
 
   const sortedRows = useMemo(() => {
     const formattedData = formatTableData(rows);
-    return formattedData.sort((a, b) => {
-      if (sortBy === 'formattedDate') {
-        return new Date(a.formattedDate) - new Date(b.formattedDate);
-      } else if (sortBy === 'price') {
-        return a.price - b.price;
+    console.log('Formatted Data:', formattedData); // Debugging log
+    return formattedData.slice().sort((a, b) => {
+      switch (sortBy) {
+        case 'formattedDate':
+          return new Date(a.formattedDate) - new Date(b.formattedDate);
+        case 'team1':
+          return a.team1.localeCompare(b.team1);
+        case 'team2':
+          return a.team2.localeCompare(b.team2);
+        default:
+          return 0;
       }
-      return 0; // Default: no sorting
     });
-  }, [rows, sortBy]); // Re-sort when rows or sortBy changes
+  }, [rows, sortBy]);
 
   return (
-<>
-<TableContainer component={Paper} sx={{ width: '100%'}}>
-      <Table sx={{}} aria-label="custom pagination table">
-      <TableRow>
-        
-          <TableCell colSpan={1} style={{ padding: '10px' }}>
-            Sort by:
-            <Select
-              value={sortBy}
-              onChange={handleSortChange}
-              style={{ marginLeft: '10px' }}
-            >
-              <MenuItem value="formattedDate">Date</MenuItem>
-              <MenuItem value="price">Price</MenuItem>
-            </Select>
-          </TableCell>
-          <TableCell colSpan={5} style={{ padding: '10px' }}>
-          {resmes}
-          </TableCell>
-        </TableRow>
-        <TableBody>
-          {(rowsPerPage > 0
-            ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            : sortedRows
-          ).map((row) => (
-            <TableRow key={row.name}>
-              <TableCell component="th" scope="row">
-                {row.formattedDate}
-              </TableCell>
-              <TableCell style={{ width: 160 }} align="right">
-                {row.team1} vs {row.team2}
-              </TableCell>
-              <TableCell style={{ width: 160 }} align="right">
-              {row.location}
-              </TableCell>
-              <TableCell style={{ width: 160 }} align="right">
-                {row.venue}
-              </TableCell>
-              <TableCell style={{ width: 160}} align="right">
+    <>
+      <Select value={sortBy} onChange={handleSortChange}>
+        <MenuItem value="formattedDate">Date</MenuItem>
+        <MenuItem value="team1">Team 1</MenuItem>
+        <MenuItem value="team2">Team 2</MenuItem>
+      </Select>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
+          <TableBody>
+            {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.formattedDate}</TableCell>
+                <TableCell>{row.team1}</TableCell>
+                <TableCell>{row.team2}</TableCell>
+                <TableCell>{row.venue}</TableCell>
+                <TableCell>{row.city}</TableCell>
+                <TableCell>
                   <button onClick={() => handleFavoriteToggle(row)}>
-                    {isFavorite(row) ? <FavoriteIcon color="secondary" /> : <FavoriteBorderIcon />}
+                    {isFavorite(row) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                   </button>
                 </TableCell>
-                <TableCell style={{ width: 160 }} align="right">
-                  <button onClick={() => handleBuyTicket(row)}>Buy Ticket</button>
-                </TableCell>
-            </TableRow>
-          ))}
-          {emptyRows > 0 && (
-            <TableRow style={{ height: 53 * emptyRows }}>
-              <TableCell colSpan={6} />
-            </TableRow>
-          )}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-              colSpan={3}
-              count={rows.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              slotProps={{
-                select: {
+              </TableRow>
+            ))}
+            {emptyRows > 0 && (
+              <TableRow style={{ height: 53 * emptyRows }}>
+                <TableCell colSpan={6} />
+              </TableRow>
+            )}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                colSpan={6}
+                count={sortedRows.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                SelectProps={{
                   inputProps: {
                     'aria-label': 'rows per page',
                   },
                   native: true,
-                },
-              }}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              ActionsComponent={TablePaginationActions}
-            />
-          </TableRow>
-        </TableFooter>
-      </Table>
-    </TableContainer>
-  </>
+                }}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                ActionsComponent={TablePaginationActions}
+              />
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </TableContainer>
+    </>
   );
-}
+};
+
+Itemscontainer.propTypes = {
+  rows: PropTypes.array.isRequired,
+  resmes: PropTypes.string,
+};

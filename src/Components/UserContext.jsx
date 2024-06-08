@@ -1,12 +1,15 @@
 import React, { createContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 export const UserContext = createContext({
   userMode: 'guest',
   user: {},
   token: null,
+  favoriteGames: [],
   setUserMode: () => {},
   setToken: () => {},
   updateUserDetails: () => {},
+  setFavoriteGames: () => {},
 });
 
 export const UserProvider = ({ children }) => {
@@ -14,6 +17,7 @@ export const UserProvider = ({ children }) => {
     userMode: 'guest',
     user: {},
     token: localStorage.getItem('authToken') || null,
+    favoriteGames: [],
   });
 
   const setUserMode = (mode, userData = {}) => {
@@ -43,7 +47,34 @@ export const UserProvider = ({ children }) => {
     }));
   };
 
-  const value = { ...userState, setUserMode, setToken, updateUserDetails };
+  const setFavoriteGames = (games) => {
+    setUserState((prevState) => ({
+      ...prevState,
+      favoriteGames: games,
+    }));
+  };
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (userState.token) {
+        try {
+          const response = await axios.get('http://localhost:3000/users/details', {
+            headers: {
+              Authorization: `Bearer ${userState.token}`,
+            },
+          });
+          setUserMode('user', response.data);
+          setFavoriteGames(response.data.favoriteGames || []);
+          console.log("")
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+    fetchUserDetails();
+  }, [userState.token]);
+
+  const value = { ...userState, setUserMode, setToken, updateUserDetails, setFavoriteGames };
 
   return (
     <UserContext.Provider value={value}>
