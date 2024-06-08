@@ -85,7 +85,7 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-export const Itemscontainer = ({ rows = [], resmes }) => { // Default to an empty array if rows is undefined
+export const Itemscontainer = ({ rows = [], resmes }) => { 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortBy, setSortBy] = React.useState('formattedDate');
@@ -96,12 +96,6 @@ export const Itemscontainer = ({ rows = [], resmes }) => { // Default to an empt
   useEffect(() => {
     setLocalFavorites(favoriteGames.map(game => game.id));
   }, [favoriteGames]);
-
-  // Log userId and token to ensure they are available
-  useEffect(() => {
-    console.log('email:', email);
-    console.log('token:', token);
-  }, [email, token]);
 
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
@@ -119,21 +113,20 @@ export const Itemscontainer = ({ rows = [], resmes }) => { // Default to an empt
     setSortBy(event.target.value);
   };
 
-  // Function to transform API response data into table rows
   const formatTableData = (data) => {
     if (!data) {
-      return []; // Return an empty array if data or data.response is undefined
+      return []; 
     }
 
     return data.map((game) => {
       const fixture = game.fixture;
       const teams = game.teams;
       return {
-        formattedDate: new Date(fixture.date).toLocaleDateString(), // Assuming 'date' has the full date string
+        formattedDate: new Date(fixture.date).toLocaleDateString(), 
         team1: teams.home.name,
         team2: teams.away.name,
-        location: `${fixture.venue?.city || 'NA'}`, // Use venue.city if available, 'NA' otherwise
-        venue: `${fixture.venue?.name || 'NA'}`, // Assuming price information is not available, replace with actual price logic
+        location: `${fixture.venue?.city || 'NA'}`, 
+        venue: `${fixture.venue?.name || 'NA'}`, 
         id: `${fixture.id}`
       };
     });
@@ -145,7 +138,7 @@ export const Itemscontainer = ({ rows = [], resmes }) => { // Default to an empt
       if (sortBy === 'formattedDate') {
         return new Date(a.formattedDate) - new Date(b.formattedDate);
       } else if (sortBy === 'price') {
-        return a.price - b.price; // Assuming 'price' is a property of the game object
+        return a.price - b.price; 
       }
       return 0;
     });
@@ -193,30 +186,25 @@ export const Itemscontainer = ({ rows = [], resmes }) => { // Default to an empt
     try {
       let updatedFavorites;
       if (isFavorite(row)) {
-        // Remove from favorites
         await removeFavoriteGame(row.id);
         updatedFavorites = favoriteGames.filter(game => game.id !== row.id);
         setLocalFavorites(updatedFavorites.map(game => game.id));
       } else {
-        // Check if the game is already in favoriteGames
         const existingFavorite = favoriteGames.find(game => game.id === row.id);
         if (existingFavorite) {
           alert('This game is already in your favorites.');
           return;
         }
 
-        // Add to favorites
         await addFavoriteGame(row);
         updatedFavorites = [...favoriteGames, row];
         setLocalFavorites([...localFavorites, row.id]);
       }
-      // Update context state
       setFavoriteGames(updatedFavorites);
     } catch (error) {
       console.error('Error updating favorite games:', error);
     }
   };
-
 
   const handleBuyTicket = (row) => {
     const queryParams = {
@@ -234,23 +222,23 @@ export const Itemscontainer = ({ rows = [], resmes }) => { // Default to an empt
     <>
       <TableContainer component={Paper} sx={{ width: '100%' }}>
         <Table sx={{}} aria-label="custom pagination table">
-          <TableRow>
-            <TableCell colSpan={1} style={{ padding: '10px' }}>
-              Sort by:
-              <Select
-                value={sortBy}
-                onChange={handleSortChange}
-                style={{ marginLeft: '10px' }}
-              >
-                <MenuItem value="formattedDate">Date</MenuItem>
-                <MenuItem value="price">Price</MenuItem>
-              </Select>
-            </TableCell>
-            <TableCell colSpan={5} style={{ padding: '10px' }}>
-              {resmes}
-            </TableCell>
-          </TableRow>
           <TableBody>
+            <TableRow>
+              <TableCell colSpan={1} style={{ padding: '10px' }}>
+                Sort by:
+                <Select
+                  value={sortBy}
+                  onChange={handleSortChange}
+                  style={{ marginLeft: '10px' }}
+                >
+                  <MenuItem value="formattedDate">Date</MenuItem>
+                  <MenuItem value="price">Price</MenuItem>
+                </Select>
+              </TableCell>
+              <TableCell colSpan={5} style={{ padding: '10px' }}>
+                {resmes}
+              </TableCell>
+            </TableRow>
             {(rowsPerPage > 0
               ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               : sortedRows
@@ -269,11 +257,10 @@ export const Itemscontainer = ({ rows = [], resmes }) => { // Default to an empt
                   {row.venue}
                 </TableCell>
                 <TableCell style={{ width: 160 }} align="right">
-                  <button onClick={() => handleFavoriteToggle(row)}>
-                    {isFavorite(row) ? <FavoriteIcon color="secondary" /> : <FavoriteBorderIcon />}
-                  </button>
+                  <IconButton onClick={() => handleFavoriteToggle(row)}>
+                    {isFavorite(row) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                  </IconButton>
                 </TableCell>
-
                 <TableCell style={{ width: 160 }} align="right">
                   <button onClick={() => handleBuyTicket(row)}>Buy Ticket</button>
                 </TableCell>
@@ -289,17 +276,15 @@ export const Itemscontainer = ({ rows = [], resmes }) => { // Default to an empt
             <TableRow>
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                colSpan={3}
+                colSpan={6}
                 count={rows.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
-                slotProps={{
-                  select: {
-                    inputProps: {
-                      'aria-label': 'rows per page',
-                    },
-                    native: true,
+                SelectProps={{
+                  inputProps: {
+                    'aria-label': 'rows per page',
                   },
+                  native: true,
                 }}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}

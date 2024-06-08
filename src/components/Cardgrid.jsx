@@ -28,6 +28,41 @@ const cardData = [
     description: 'Description for card 5',
     image: 'src/images/L-nba.jpg',
   },
+  {
+    title: 'Card Title 6',
+    description: 'Description for card 6',
+    image: 'src/images/L-nba.jpg',
+  },
+  {
+    title: 'Card Title 7',
+    description: 'Description for card 7',
+    image: 'src/images/L-nba.jpg',
+  },
+  {
+    title: 'Card Title 8',
+    description: 'Description for card 8',
+    image: 'src/images/L-nba.jpg',
+  },
+  {
+    title: 'Card Title 9',
+    description: 'Description for card 9',
+    image: 'src/images/L-nba.jpg',
+  },
+  {
+    title: 'Card Title 10',
+    description: 'Description for card 10',
+    image: 'src/images/L-nba.jpg',
+  },
+  {
+    title: 'Card Title 11',
+    description: 'Description for card 11',
+    image: 'src/images/L-nba.jpg',
+  },
+  {
+    title: 'Card Title 12',
+    description: 'Description for card 12',
+    image: 'src/images/L-nba.jpg',
+  }
 ];
 
 export const Cardgrid = () => {
