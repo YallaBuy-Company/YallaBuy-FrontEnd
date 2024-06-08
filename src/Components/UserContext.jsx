@@ -1,12 +1,17 @@
 import React, { createContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 export const UserContext = createContext({
   userMode: 'guest',
   user: {},
   token: null,
+  favoriteGames: [],
+  email: null,
   setUserMode: () => {},
   setToken: () => {},
+  setEmail: () => {},
   updateUserDetails: () => {},
+  setFavoriteGames: () => {},
 });
 
 export const UserProvider = ({ children }) => {
@@ -14,6 +19,8 @@ export const UserProvider = ({ children }) => {
     userMode: 'guest',
     user: {},
     token: localStorage.getItem('authToken') || null,
+    favoriteGames: [],
+    email: localStorage.getItem('authEmail') || null,
   });
 
   const setUserMode = (mode, userData = {}) => {
@@ -36,6 +43,18 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const setEmail = (email) => {
+    setUserState((prevState) => ({
+      ...prevState,
+      email: email,
+    }));
+    if (email) {
+      localStorage.setItem('authEmail', email);
+    } else {
+      localStorage.removeItem('authEmail');
+    }
+  };
+
   const updateUserDetails = (userData) => {
     setUserState((prevState) => ({
       ...prevState,
@@ -43,7 +62,34 @@ export const UserProvider = ({ children }) => {
     }));
   };
 
-  const value = { ...userState, setUserMode, setToken, updateUserDetails };
+  const setFavoriteGames = (games) => {
+    setUserState((prevState) => ({
+      ...prevState,
+      favoriteGames: games,
+    }));
+  };
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (userState.token && userState.email) {
+        try {
+          const response = await axios.get('http://localhost:3000/users/details', {
+            headers: {
+              Authorization: `Bearer ${userState.token}`,
+            },
+            params: { email: userState.email },
+          });
+          setUserMode('user', response.data);
+          setFavoriteGames(response.data.favoriteGames || []);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+    fetchUserDetails();
+  }, [userState.token, userState.email]);
+
+  const value = { ...userState, setUserMode, setToken, setEmail, updateUserDetails, setFavoriteGames };
 
   return (
     <UserContext.Provider value={value}>

@@ -1,28 +1,27 @@
 .container {
-    position: relative;
-    width: 100vw;
-    height: 70vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 0;
-  }
-  
-  .image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .titleBox {
-    width: 80%;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 1rem;
-    z-index: 1;
-    text-align: start;
-  }
-  
+  position: relative;
+  width: 100vw;
+  height: 70vh;
+  display: flex;
+  justify-content: flex-end; /* Align title box to the right */
+  align-items: center;
+  padding: 0;
+}
+
+.image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.titleBox {
+  width: 50%; /* Set width to half of the screen */
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 1rem;
+  z-index: 1;
+  text-align: start;
+  color: white; /* Ensure text is visible on dark background */
+}

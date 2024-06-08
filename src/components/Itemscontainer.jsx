@@ -187,6 +187,19 @@ export const Itemscontainer = ({ rows = [],resmes }) => { // Default to an empty
     });
   }, [rows, sortBy]); // Re-sort when rows or sortBy changes
 
+
+  const handleBuyTicket = (row) => {
+    const queryParams = {
+        date: row.formattedDate,
+        location: row.location,
+        team1: row.team1,
+        team2: row.team2,
+    };
+
+    const searchParams = new URLSearchParams(queryParams).toString();
+    navigate(`/ticket?${searchParams}`);
+  };
+
   return (
 <>
 <TableContainer component={Paper} sx={{ width: '100%'}}>
