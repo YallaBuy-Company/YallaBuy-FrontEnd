@@ -1,41 +1,64 @@
-import React from "react";
-import { Itemscontainer } from '../Itemscontainer'
+import React, { useState, useEffect } from "react";
+import { Itemscontainer } from '../Itemscontainer';
 import { Cardgrid } from '../Cardgrid';
+import { getGames } from "../../apis/rapidApi"; // Ensure this import path is correct
 
+export const HomePage = () => {
+  const [games, setGames] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [resmes, setMessage] = useState("");
 
-export const HomePage = ()=> {
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setErrorMessage(""); // Clear any previous errors
 
-    function createData(date,team1,team2,location,price) {
-        try {
-            const dateObject = new Date(date);
-            const formattedDate = dateObject.toLocaleDateString(/*'en-US'*/'de-DE', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-            });
-            return { formattedDate, team1, team2, location, price };
-          } catch (error) {
-            console.error("Invalid date format:", date);
-            return { formattedDate: "Invalid Date", team1, team2, location, price };
-          }
+      try {
+        const today = new Date();
+        const formattedDate = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`; // Format date as DD/MM/YYYY
+        const { allGames, resMes } = await getGames(null, null, null, null, formattedDate);
+        setMessage(resMes);
+        setGames(allGames);
+
+      } catch (error) {
+        console.error("Error fetching games:", error);
+        setErrorMessage("Failed to fetch games. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData(); // Fetch data on component mount
+  }, []);
+
+  const handleError = () => {
+    // Handle error cases (e.g., display an error message)
+    if (errorMessage) {
+      return <div className="error-message">{errorMessage}</div>;
     }
-    
-    const rows = [
-      createData("12/20/2023","team1","team2","location",95.40),
-      createData("12/21/2023","team1","team2","location",99.40),
-      createData("12/22/2023","team1","team2","location",98.40),
-      createData("12/23/2023","team1","team2","location",97.40),
-      createData("12/24/2023","team1","team2","location",93.40),
-      createData("12/25/2023","team1","team2","location",90.40),
-      createData("12/26/2023","team1","team2","location",91.40),
-      createData("12/26/2023","team1","team2","location",92.40),
-      createData("12/28/2023","team1","team2","location",99.40)
-    ];
+  };
 
-    return (
+  const handleLoading = () => {
+    // Handle loading state (e.g., display a loading indicator)
+    if (isLoading) {
+      return <div className="loading">Loading games...</div>;
+    }
+  };
+
+  return (
+    <>
+      {handleError()}
+      {handleLoading()}
+      {games.length > 0 && (
         <>
-          {/*<Itemscontainer rows={rows}/>*/}
-          <Cardgrid/>
+          <Itemscontainer rows={games} resmes={resmes} />
+          <Cardgrid />
         </>
-    );
-}
+      )}
+      {games.length === 0 && !isLoading && !errorMessage && (
+        <div className="no-results">No games found for today.</div>
+      )}
+    </>
+  );
+};
